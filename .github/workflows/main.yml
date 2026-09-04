@@ -1,0 +1,54 @@
+name: Build and Deploy Website
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout repository
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2. Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # 3. Build / Validate
+      - name: Build Website
+        run: |
+          echo "Building website..."
+          test -f index.html
+          test -f style.css
+          test -f script.js
+          node --check script.js
+          echo "Build successful!"
+
+      # 4. Configure AWS
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+
+      # 5. Deploy to S3
+      - name: Deploy Website to S3
+        run: |
+          aws s3 sync . s3://${{ secrets.S3_BUCKET_NAME }} \
+            --exclude ".git/*" \
+            --exclude ".github/*" \
+            --exclude ".gitignore"
+
+      # 6. Deployment successful
+      - name: Deployment Successful
+        run: |
+          echo "================================="
+          echo " Website deployed successfully! "
+          echo "================================="
