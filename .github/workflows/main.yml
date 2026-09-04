@@ -41,7 +41,7 @@ jobs:
       # 5. Deploy to S3
       - name: Deploy Website to S3
         run: |
-          aws s3 sync . s3://${{ secrets.S3_BUCKET_NAME }} \
+          aws s3 sync . s3://${{ secrets.payflow-bucket-2026 }} \
             --exclude ".git/*" \
             --exclude ".github/*" \
             --exclude ".gitignore"
